@@ -1,0 +1,375 @@
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- Clean up existing UI if re-executed
+if CoreGui:FindFirstChild("MinimalAimbotUI") then
+    CoreGui.MinimalAimbotUI:Destroy()
+end
+
+-- Main ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MinimalAimbotUI"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Main Frame (Clean, Rounded, Semi-transparent)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundTransparency = 0.25
+MainFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+MainFrame.Size = UDim2.new(0, 180, 0, 210)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(45, 45, 45)
+UIStroke.Thickness = 1.5
+UIStroke.Parent = MainFrame
+
+-- Minimize Button
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Name = "MinimizeBtn"
+MinimizeBtn.Parent = MainFrame
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Position = UDim2.new(0, 10, 0, 8)
+MinimizeBtn.Size = UDim2.new(0, 20, 0, 20)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+MinimizeBtn.TextSize = 16
+
+-- Title
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 35, 0, 8)
+TitleLabel.Size = UDim2.new(0, 130, 0, 20)
+TitleLabel.Font = Enum.Font.GothamMedium
+TitleLabel.Text = "Minimal Aimbot"
+TitleLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+TitleLabel.TextSize = 13
+
+-- Toggle Button (Geral ON / OFF)
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Name = "ToggleBtn"
+ToggleBtn.Parent = MainFrame
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleBtn.Position = UDim2.new(0, 15, 0, 38)
+ToggleBtn.Size = UDim2.new(0, 150, 0, 28)
+ToggleBtn.Font = Enum.Font.GothamMedium
+ToggleBtn.Text = "Status: OFF"
+ToggleBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+ToggleBtn.TextSize = 12
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = ToggleBtn
+
+-- Shared TextBox for Spectate & Esp Owl
+local TargetBox = Instance.new("TextBox")
+TargetBox.Name = "TargetBox"
+TargetBox.Parent = MainFrame
+TargetBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TargetBox.Position = UDim2.new(0, 15, 0, 74)
+TargetBox.Size = UDim2.new(0, 150, 0, 28)
+TargetBox.Font = Enum.Font.Gotham
+TargetBox.PlaceholderText = "Nome do player..."
+TargetBox.Text = ""
+TargetBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+TargetBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+TargetBox.TextSize = 11
+
+local BoxCorner = Instance.new("UICorner")
+BoxCorner.CornerRadius = UDim.new(0, 8)
+BoxCorner.Parent = TargetBox
+
+-- Spectate Button
+local SpectateBtn = Instance.new("TextButton")
+SpectateBtn.Name = "SpectateBtn"
+SpectateBtn.Parent = MainFrame
+SpectateBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SpectateBtn.Position = UDim2.new(0, 15, 0, 110)
+SpectateBtn.Size = UDim2.new(0, 150, 0, 28)
+SpectateBtn.Font = Enum.Font.GothamMedium
+SpectateBtn.Text = "Spectate: OFF"
+SpectateBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+SpectateBtn.TextSize = 12
+
+local SpecCorner = Instance.new("UICorner")
+SpecCorner.CornerRadius = UDim.new(0, 8)
+SpecCorner.Parent = SpectateBtn
+
+-- Esp Owl Button (Single Player ESP)
+local EspOwlBtn = Instance.new("TextButton")
+EspOwlBtn.Name = "EspOwlBtn"
+EspOwlBtn.Parent = MainFrame
+EspOwlBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+EspOwlBtn.Position = UDim2.new(0, 15, 0, 146)
+EspOwlBtn.Size = UDim2.new(0, 150, 0, 28)
+EspOwlBtn.Font = Enum.Font.GothamMedium
+EspOwlBtn.Text = "Esp Owl: OFF"
+EspOwlBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+EspOwlBtn.TextSize = 12
+
+local OwlCorner = Instance.new("UICorner")
+OwlCorner.CornerRadius = UDim.new(0, 8)
+OwlCorner.Parent = EspOwlBtn
+
+-- Refresh Label Button
+local RefreshLabel = Instance.new("TextButton")
+RefreshLabel.Name = "RefreshLabel"
+RefreshLabel.Parent = MainFrame
+RefreshLabel.BackgroundTransparency = 1
+RefreshLabel.Position = UDim2.new(0, 15, 0, 182)
+RefreshLabel.Size = UDim2.new(0, 150, 0, 20)
+RefreshLabel.Font = Enum.Font.Gotham
+RefreshLabel.Text = "Atualizar"
+RefreshLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+RefreshLabel.TextSize = 11
+
+-- Script Logic Variables
+local aimbotEnabled = false
+local spectateEnabled = false
+local espOwlEnabled = false
+local activeEsp = {}
+local targetList = {}
+
+-- Clean ESP drawings & Highlight
+local function removeEsp(player)
+    if activeEsp[player] then
+        if activeEsp[player].box then activeEsp[player].box:Remove() end
+        if activeEsp[player].info then activeEsp[player].info:Remove() end
+        if activeEsp[player].highlight then activeEsp[player].highlight:Destroy() end
+        activeEsp[player] = nil
+    end
+end
+
+-- Create ESP visuals & Character Highlight
+local function createEsp(player)
+    if player == LocalPlayer or activeEsp[player] then return end
+    
+    local box = Drawing.new("Square")
+    box.Visible = false
+    box.Color = Color3.fromRGB(255, 255, 255)
+    box.Thickness = 1
+    box.Filled = false
+
+    local info = Drawing.new("Text")
+    info.Visible = false
+    info.Color = Color3.fromRGB(255, 255, 255)
+    info.Size = 12
+    info.Center = true
+    info.Outline = true
+
+    local highlight = Instance.new("Highlight")
+    highlight.FillColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.65
+    highlight.OutlineTransparency = 0
+    highlight.Enabled = false
+
+    activeEsp[player] = {box = box, info = info, highlight = highlight}
+end
+
+-- Find player by partial name (case-insensitive)
+local function getPlayer(nameInput)
+    if nameInput == "" then return nil end
+    local lowerInput = string.lower(nameInput)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            if string.find(string.lower(player.Name), lowerInput, 1, true) or string.find(string.lower(player.DisplayName), lowerInput, 1, true) then
+                return player
+            end
+        end
+    end
+    return nil
+end
+
+-- Sync active targets based on enabled modes
+local function syncTargets()
+    local newTargets = {}
+    local targetSet = {}
+
+    if aimbotEnabled then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                table.insert(newTargets, player)
+                targetSet[player] = true
+                createEsp(player)
+            end
+        end
+    elseif espOwlEnabled then
+        local owlTarget = getPlayer(TargetBox.Text)
+        if owlTarget then
+            table.insert(newTargets, owlTarget)
+            targetSet[owlTarget] = true
+            createEsp(owlTarget)
+        end
+    end
+
+    for player, _ in pairs(activeEsp) do
+        if not targetSet[player] then
+            removeEsp(player)
+        end
+    end
+
+    targetList = newTargets
+end
+
+-- Automatic target cache refresh every 2 seconds
+task.spawn(function()
+    while true do
+        syncTargets()
+        task.wait(2)
+    end
+end)
+
+-- Manual refresh trigger
+RefreshLabel.MouseButton1Click:Connect(function()
+    syncTargets()
+end)
+
+-- Toggle All ESP
+ToggleBtn.MouseButton1Click:Connect(function()
+    aimbotEnabled = not aimbotEnabled
+    if aimbotEnabled then
+        ToggleBtn.Text = "Status: ON"
+        ToggleBtn.TextColor3 = Color3.fromRGB(50, 200, 50)
+    else
+        ToggleBtn.Text = "Status: OFF"
+        ToggleBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+    end
+    syncTargets()
+end)
+
+-- Toggle Spectate Button
+SpectateBtn.MouseButton1Click:Connect(function()
+    spectateEnabled = not spectateEnabled
+    if spectateEnabled then
+        SpectateBtn.Text = "Spectate: ON"
+        SpectateBtn.TextColor3 = Color3.fromRGB(50, 200, 50)
+    else
+        SpectateBtn.Text = "Spectate: OFF"
+        SpectateBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+        Camera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    end
+end)
+
+-- Toggle Esp Owl Button
+EspOwlBtn.MouseButton1Click:Connect(function()
+    espOwlEnabled = not espOwlEnabled
+    if espOwlEnabled then
+        EspOwlBtn.Text = "Esp Owl: ON"
+        EspOwlBtn.TextColor3 = Color3.fromRGB(50, 200, 50)
+    else
+        EspOwlBtn.Text = "Esp Owl: OFF"
+        EspOwlBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+    end
+    syncTargets()
+end)
+
+-- Minimize/Maximize UI functionality
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        MinimizeBtn.Text = "+"
+        MainFrame:TweenSize(UDim2.new(0, 180, 0, 32), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
+        ToggleBtn.Visible = false
+        TargetBox.Visible = false
+        SpectateBtn.Visible = false
+        EspOwlBtn.Visible = false
+        RefreshLabel.Visible = false
+    else
+        MinimizeBtn.Text = "-"
+        MainFrame:TweenSize(UDim2.new(0, 180, 0, 210), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
+        ToggleBtn.Visible = true
+        TargetBox.Visible = true
+        SpectateBtn.Visible = true
+        EspOwlBtn.Visible = true
+        RefreshLabel.Visible = true
+    end
+end)
+
+-- Render loop for ESP & Spectate handling
+RunService.RenderStepped:Connect(function()
+    -- Handle Spectate
+    if spectateEnabled then
+        local targetPlayer = getPlayer(TargetBox.Text)
+        if targetPlayer and targetPlayer.Character then
+            local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                Camera.CameraSubject = humanoid
+            end
+        end
+    end
+
+    -- Handle ESP (Global or Esp Owl)
+    if not aimbotEnabled and not espOwlEnabled then return end
+
+    for _, player in ipairs(targetList) do
+        local esp = activeEsp[player]
+        if not esp then continue end
+
+        local character = player.Character
+        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+        if character and humanoidRootPart and humanoid and humanoid.Health > 0 then
+            -- Highlight character
+            if esp.highlight.Parent ~= character then
+                esp.highlight.Parent = character
+            end
+            esp.highlight.Enabled = true
+
+            local vector, onScreen = Camera:WorldToViewportPoint(humanoidRootPart.Position)
+            
+            if onScreen then
+                local head = character:FindFirstChild("Head")
+                local topPosition = head and Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0)) or vector
+                local legPosition = Camera:WorldToViewportPoint(humanoidRootPart.Position - Vector3.new(0, 3, 0))
+                
+                local height = math.abs(topPosition.Y - legPosition.Y)
+                local width = height / 2
+
+                -- White Box
+                esp.box.Size = Vector2.new(width, height)
+                esp.box.Position = Vector2.new(vector.X - width / 2, topPosition.Y)
+                esp.box.Visible = true
+
+                -- Info Text (Name, Team, Distance)
+                local distance = math.floor((Camera.CFrame.Position - humanoidRootPart.Position).Magnitude)
+                local teamName = player.Team and player.Team.Name or "Sem Time"
+                
+                esp.info.Text = string.format("%s | Time: %s | [%dm]", player.Name, teamName, distance)
+                esp.info.Position = Vector2.new(vector.X, topPosition.Y - 18)
+                esp.info.Visible = true
+            else
+                esp.box.Visible = false
+                esp.info.Visible = false
+            end
+        else
+            esp.box.Visible = false
+            esp.info.Visible = false
+            if esp.highlight then
+                esp.highlight.Enabled = false
+            end
+        end
+    end
+end)
+
+-- Handle player leaving
+Players.PlayerRemoving:Connect(function(player)
+    removeEsp(player)
+end)
